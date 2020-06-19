@@ -1,22 +1,24 @@
-import { Application, Context } from "https://deno.land/x/abc@v1.0.0-rc10/mod.ts";
-import { get_allSets, post_set } from './controllers/allSets.ts';
-import { get_set, post_card, delete_card } from './controllers/set.ts'
+import { Application } from "https://deno.land/x/abc@v1.0.0-rc10/mod.ts";
+import { client } from './mongodb/index.ts';
+import { get_all_sets, get_set, post_set, delete_set } from './controllers/sets.ts';
+import { get_cards, post_card } from './controllers/cards.ts';
+
+client.connectWithUri('mongodb://localhost:27017');
 
 const app = new Application();
 
 app
-    // 全學習集
-    .get('/sets', get_allSets)
-    // 單一學習集
+    // 學習集
+    .get('/sets', get_all_sets)
     .get('/sets/:id', get_set)
     .post('/sets', post_set)
-    .delete('/sets/:id', delete_card)
-    // 單一單字卡
-    .get('/card/:id', (ctx: Context) => { ctx.string('card: get') })
-    .post('/sets/:id', post_card)
-    .post('/card/:id', (ctx: Context) => { ctx.string('card: post') })
-    .put('/card/:id', (ctx: Context) => { ctx.string('card: put') })
-    .delete('/card/:id', (ctx: Context) => { ctx.string('card: delete') })
+    .delete('/sets/:id', delete_set)
+    // 單字卡
+    .get('/cards/:set_oid', get_cards)
+    // .get('/cards/:id', () => {})
+    .post('/cards', post_card)
+    .put('/cards/:id', () => {})
+    .delete('/cards/:id', () => {})
 
 
 app.start({ port: 5000 });
