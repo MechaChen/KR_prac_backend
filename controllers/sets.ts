@@ -5,9 +5,12 @@ import { db } from '../mongodb/index.ts';
 export interface Set {
     title: string;
     date: string;
+    wordNum: number;
+    phraseNum: number;
 }
 
 const sets = db.collection('sets');
+const cards = db.collection('cards');
 
 export const get_all_sets = async (ctx: Context) => {
     const all_sets = await sets.find({});
@@ -18,9 +21,13 @@ export const get_all_sets = async (ctx: Context) => {
 export const get_set = async (ctx: Context) => {
     const { id } = ctx.params;
 
-    const set = await sets.findOne({ _id: { "$oid": id } });
+    const set = await sets.findOne({ _id: { $oid: id } });
+    const set_cards = await cards.find({ set_oid: id });
 
-    return ctx.json(set);
+    return ctx.json({
+        title: set.title,
+        cards: set_cards,
+    });
 }
 
 export const post_set = async (ctx: Context) => {
@@ -28,7 +35,9 @@ export const post_set = async (ctx: Context) => {
 
     const newSet: Set = {
         title,
-        date: moment().format('YYYY-MM-DD')
+        date: moment().format('YYYY-MM-DD'),
+        wordNum: 0,
+        phraseNum: 0,
     }
 
     const setID = await sets.insertOne(newSet);
